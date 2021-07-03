@@ -204,15 +204,51 @@ public class TestController {
         Mono.fromSupplier()
         parameter는 없고 return 값만 있는 그런 function을 나타내는 interface
          */
-
+/*
         log.info("pos1");
         Mono<String> m4 = Mono.fromSupplier(() -> generateHello()).doOnNext(c -> log.info(c)).log();
         log.info("pos2");
         return m4;
+ */
 
         /**
          * 결과
          * pos1
+         * pos2
+         * | onSubscribe([Fuseable] FluxPeekFuseable.PeekFuseableSubscriber)
+         * | request(unbounded)
+         * method generateHello() ** 이떄 실행된다 !!
+         * Hello Mono
+         * | onNext(Hello Mono)
+         * | onComplete()
+         *
+         * 첫 번째 request 후에 generaterHello()를 사용하였다. 함수로 만들어서 Lambda 식을 만들어서 넘긴다.
+         * Mono안에 작성된건 method가 끝날때까지 실행이 되지 않는다. 즉 subscribe 하는 시점에 가져온다.
+         */
+
+        /*
+        만약 미리 subscribe 한다면 어떡할까?
+        1. 이미 subscribe 한걸 return 했으니까 출력이 안된다? error?
+        2. subscribe 했으니까 return을 하면 error는 아니지만 동작하지 않는다?
+        3. 한 번 진행해서 subscribe 한걸 동작하고, return 때 한번 더 실행이된다?
+        정답은 3번 !!! 중요한건 Cold Source인지 Hot Source인지. WebFlux는 기본적으로 Cold Source이다.
+         */
+        /*
+        log.info("pos1");
+        Mono<String> m5 = Mono.fromSupplier(() -> generateHello()).doOnNext(c -> log.info(c)).log();
+        m5.subscribe(); // return 하기 전에 subscribe하고 화면에 출력을 안한다면 어떤일이 일어날까?
+        log.info("pos2");
+        return m5;
+         */
+        /**
+         * 결과
+         * pos1
+         * | onSubscribe([Fuseable] FluxPeekFuseable.PeekFuseableSubscriber)
+         * | request(unbounded)
+         * method generateHello()
+         * Hello Mono
+         * | onNext(Hello Mono)
+         * | onComplete()
          * pos2
          * | onSubscribe([Fuseable] FluxPeekFuseable.PeekFuseableSubscriber)
          * | request(unbounded)
@@ -221,8 +257,31 @@ public class TestController {
          * | onNext(Hello Mono)
          * | onComplete()
          *
-         * 첫 번째 request 후에 generaterHello()를 사용하였다.
+         * Mono, Flux 등의 publisher 들은 한 개 이상의 subscriber를 가질 수 있다. 즉 하나의 publisher에 여러개의 subscriber가 있을 수 있다.
+         * cold type & hot type (publishing 하는 source가)
+         *
          */
+
+        // Cold Type & Hot Type
+        /**
+         * 어느 subscriber가 요청을 하던 동일한 결과가 가는 것 --> cold type.
+         * Hot Source는, 실시간으로 일어나는 user interface 등의 action 등. publisher가 기동을 시작해 100개가 날라왔으면 그 다음 101번째 부터 실시간으로 발생하는 data만 사용한다.
+         */
+
+        /**
+         * Mono.block()
+         * 보통은 Mono<>, Flux<> 형태로 Data 조작을 하다가 spring으로 넘길때도 같은 Mono, Flux로 넘기면 되지만, 만약 다른 Method를 호출하거나 다른 방향으로
+         * Mono로 작업하던걸 String, 다른 걸로 빼고싶다면?
+         * Mono.block()을 건다
+         * block()이라는 코드 내부ㅇ에서 subscribe를 한번 한다.
+         */
+
+        log.info("pos1");
+        String msg = generateHello();
+        Mono<String> m6 = Mono.just(msg).doOnNext(c -> log.info(c)).log();
+        String msg2 = m6.block(); // Mono m6안에서 사용하던 Mono<Container>를 String으로 다시 빼오기 위해 사용
+        log.info("pos2" + msg2);
+        return m6;
     }
 
     private String generateHello() {
