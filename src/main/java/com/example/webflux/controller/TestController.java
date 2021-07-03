@@ -1,5 +1,7 @@
 package com.example.webflux.controller;
 
+import com.example.webflux.service.MyService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -8,9 +10,8 @@ import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import java.util.stream.Stream;
-
 @Slf4j
+@RequiredArgsConstructor
 @RestController
 public class TestController {
 
@@ -98,11 +99,34 @@ public class TestController {
     static final String URL2 = "http://localhost:8080/2/{idx}";
 
     @GetMapping("/rest/2")
-    public Mono<String> rest2(@RequestParam("idx2") int idx) {                                            // Return type
+    public Mono<String> rest2(@RequestParam("idx") int idx) {                                            // Return type
         return webClient.get().uri(URL1, idx).exchange()                            // Mono<ClientRespponse>
                 .flatMap(clientResponse -> clientResponse.bodyToMono(String.class)) // Mono<String> .. clientResponse를 꺼내서 String으로 만들어서 mono에 넣음
                 .flatMap(res1 -> webClient.get().uri(URL2, res1).exchange()) // Mono<ClientResponse> .. res1이 clientString을 가져와서 다시 ClientResponse로
                 .flatMap(c -> c.bodyToMono(String.class)); // Mono<String> .. clientResponse를 받아와서 다시 string으로 flatMap
     }
+
+    /**
+     * 별개의 Thread에 담아서 return
+     * map 과 flatMap의 차이를 이해하자.
+     * work는 string을 return 하니, 원소를 꺼내서 string으로 다시 만들어서 Mono로 넣어주는 map을 사용하면 된다.
+     */
+
+    private final MyService myService;
+
+    @GetMapping("/rest/3")
+    public Mono<String> rest3(@RequestParam("idx") int idx) {
+        return webClient.get().uri(URL1, idx).exchange()                            // Mono<ClientRespponse>
+                .flatMap(clientResponse -> clientResponse.bodyToMono(String.class)) // Mono<String> .. clientResponse를 꺼내서 String으로 만들어서 mono에 넣음
+                .flatMap(res1 -> webClient.get().uri(URL2, res1).exchange()) // Mono<ClientResponse> .. res1이 clientString을 가져와서 다시 ClientResponse로
+                .flatMap(c -> c.bodyToMono(String.class)) // Mono<String> .. clientResponse를 받아와서 다시 string으로 flatMap
+                .map(c -> myService.work(c)); // 이걸 map으로 넣어야 할까 ? flatMap으로 넣어야할까 : map ! work의 return type은 String.
+    }
+
+    /**
+     * netty안에 worker thread를 이용해 exchange() 함수를 호출한다. 만약 Myservice안에 work가 오랜 수행시간이 필요하면, thread가 block되버릴수있다.
+     * 동기적으로 수행시키면 thread를 묶는다 수행이 오래거리는동안 block..
+     * 이걸 비동기적으로 수행하기 위해 @Async annotation을 걸어줄 수 있다.
+     */
 
 }
