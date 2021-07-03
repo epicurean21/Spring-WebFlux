@@ -2,6 +2,7 @@ package com.example.webflux.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -29,6 +30,11 @@ public class TestController {
     @GetMapping("/{idx}")
     public Mono<String> webClientTest() {
         return Mono.just("WebClient Test");
+    }
+
+    @GetMapping("/2/{idx}")
+    public Mono<String> webClientTest2() {
+        return Mono.just("WebClient Test2");
     }
 
     /**
@@ -82,4 +88,21 @@ public class TestController {
         return webClient.get().uri(URL1, idx).exchange().flatMap(c -> c.bodyToMono(String.class));
         //return Mono.just("Hello WebClient!");
     }
+
+    /**
+     * GetMapping ("/rest") 에서는 int idx를 그대로 갖다가 사용했다.
+     * 이걸 Lambda 식으로 값, 결과를 받아서 두 번째 api를 호출하는 방법
+     * 이때 flatMap의 활용과 Mono안 Container의 변화를 잘 확인하고 사용하자
+     */
+
+    static final String URL2 = "http://localhost:8080/2/{idx}";
+
+    @GetMapping("/rest/2")
+    public Mono<String> rest2(@RequestParam("idx2") int idx) {                                            // Return type
+        return webClient.get().uri(URL1, idx).exchange()                            // Mono<ClientRespponse>
+                .flatMap(clientResponse -> clientResponse.bodyToMono(String.class)) // Mono<String> .. clientResponse를 꺼내서 String으로 만들어서 mono에 넣음
+                .flatMap(res1 -> webClient.get().uri(URL2, res1).exchange()) // Mono<ClientResponse> .. res1이 clientString을 가져와서 다시 ClientResponse로
+                .flatMap(c -> c.bodyToMono(String.class)); // Mono<String> .. clientResponse를 받아와서 다시 string으로 flatMap
+    }
+
 }
