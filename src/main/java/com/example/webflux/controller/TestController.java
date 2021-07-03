@@ -112,6 +112,12 @@ public class TestController {
      * work는 string을 return 하니, 원소를 꺼내서 string으로 다시 만들어서 Mono로 넣어주는 map을 사용하면 된다.
      */
 
+    /**
+     * netty안에 worker thread를 이용해 exchange() 함수를 호출한다. 만약 Myservice안에 work가 오랜 수행시간이 필요하면, thread가 block되버릴수있다.
+     * 동기적으로 수행시키면 thread를 묶는다 수행이 오래거리는동안 block..
+     * 이걸 비동기적으로 수행하기 위해 @Async annotation을 걸어줄 수 있다.
+     */
+
     private final MyService myService;
 
     @GetMapping("/rest/3")
@@ -124,9 +130,103 @@ public class TestController {
     }
 
     /**
-     * netty안에 worker thread를 이용해 exchange() 함수를 호출한다. 만약 Myservice안에 work가 오랜 수행시간이 필요하면, thread가 block되버릴수있다.
-     * 동기적으로 수행시키면 thread를 묶는다 수행이 오래거리는동안 block..
-     * 이걸 비동기적으로 수행하기 위해 @Async annotation을 걸어줄 수 있다.
+     * Mono Study
+     * log()는 중간 publisher에 해당한다.
+     * log는 앞에서 넘어오는 (onNext), subscriber가 subscribe 한것도 체크하면서, onComplete까지 확인을 한다.
+     * | onSubscribe([Synchronous Fuseable] Operators.ScalarSubscription) .. 우리가 Subscriber를 만든적이 없는데 누가 해줬을까? Spring이 해준것이다.
+     * | request(unbounded) .. request 하나 던지고
+     * | onNext(Hello WebFlux) .. onNext로 HelloWebFlux 넘기고
+     * | onComplete() .. Mono 기본적으로 데이터가 하나이기 때문에 onNext 뒤에는 error가 있지 않는한, onComplete을 넘긴다. log가 onComplete을 받는것.
+     * 이것들이 just에 대한 흐름. log로 거쳐가는 순간에 출력이 된다.
      */
 
+    @GetMapping("/")
+    Mono<String> hello() {
+        //return Mono.just("Hello WebFlux").log(); // Publisher -> (Publisher) -> (Pulisher) -> Subscriber
+
+        //log.info("pos1");
+        Mono<String> m = Mono.just("Hello WebFlux !").log();
+        //log.info("pos2");
+
+        /**
+         * pos1
+         * pos2
+         * | onSubscribe([Synchronous Fuseable] Operators.ScalarSubscription)
+         * | request(unbounded)
+         * | onNext(Hello WebFlux !)
+         * | onComplete()
+         */
+
+        //log.info("pos1");
+        Mono<String> m2 = Mono.just("Hello WebFlux !").doOnNext(c -> log.info(c)).log();
+        // Publisher -> (Publisher) -> (Pulisher) -> Subscriber ; Subscriber가 subscribe 해야 publisher가 보내는 data를 구독하면서 data가 이동된다.
+        //log.info("pos2");
+
+        /**
+         * pos1
+         * pos2
+         * | onSubscribe([Fuseable] FluxPeekFuseable.PeekFuseableSubscriber)
+         * | request(unbounded)
+         * Hello WebFlux !
+         * | onNext(Hello WebFlux !)
+         * | onComplete()
+         */
+
+        /* 만약
+        Mono<String> m2 = Mono.just(myService.findById(1)).doOnNext(c -> log.info(c)).log();
+        이런식으로 just 안에 어떠한 object를 넣고싶다면 어떤 순서로 실행이 될까?
+        정답은, myService의 findById가 먼저 실행이 된다.
+        실행이 된 후 결과값이 just로 들어간다.
+        */
+/*
+        log.info("pos1");
+        String msg = generateHello();
+        Mono<String> m3 = Mono.just(msg).doOnNext(c -> log.info(c)).log();
+        log.info("pos2");
+        return m3;
+ */
+
+        /**
+         * 결과
+         * pos1
+         * method generateHello()
+         * pos2
+         * | onSubscribe([Fuseable] FluxPeekFuseable.PeekFuseableSubscriber)
+         * | request(unbounded)
+         * Hello Mono
+         * | onNext(Hello Mono)
+         * | onComplete()
+         */
+
+        /*
+        만약 Mono.just안에 generateHello()를 Mono가 호출되는 시점에 호출되도록 하고싶다면 어떻게 해야할까?
+        Mono.just는 이미 publishing할 data가 준비된 상태
+        Mono.fromSupplier()
+        parameter는 없고 return 값만 있는 그런 function을 나타내는 interface
+         */
+
+        log.info("pos1");
+        Mono<String> m4 = Mono.fromSupplier(() -> generateHello()).doOnNext(c -> log.info(c)).log();
+        log.info("pos2");
+        return m4;
+
+        /**
+         * 결과
+         * pos1
+         * pos2
+         * | onSubscribe([Fuseable] FluxPeekFuseable.PeekFuseableSubscriber)
+         * | request(unbounded)
+         * method generateHello()
+         * Hello Mono
+         * | onNext(Hello Mono)
+         * | onComplete()
+         *
+         * 첫 번째 request 후에 generaterHello()를 사용하였다.
+         */
+    }
+
+    private String generateHello() {
+        log.info("method generateHello()");
+        return "Hello Mono";
+    }
 }
