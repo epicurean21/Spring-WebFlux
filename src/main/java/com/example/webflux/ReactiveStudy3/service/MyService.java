@@ -1,4 +1,4 @@
-package com.example.webflux.service;
+package com.example.webflux.ReactiveStudy3.service;
 
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;

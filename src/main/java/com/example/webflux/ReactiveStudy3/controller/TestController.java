@@ -1,6 +1,6 @@
-package com.example.webflux.controller;
+package com.example.webflux.ReactiveStudy3.controller;
 
-import com.example.webflux.service.MyService;
+import com.example.webflux.ReactiveStudy3.service.MyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
