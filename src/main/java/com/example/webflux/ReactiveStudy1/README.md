@@ -1,4 +1,4 @@
-## Java Spring WebFlux: Reactive Stream
+## Java Spring WebFlux: Reactive Streams [Observable]
 > Reactive Programming을 이해하자.
 
 ### Reactive Streams
