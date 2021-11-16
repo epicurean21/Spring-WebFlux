@@ -6,8 +6,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient;
 import org.springframework.web.reactive.socket.client.WebSocketClient;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.net.URI;
+import java.time.Duration;
 
 @Configuration
 public class ClientConfig implements ApplicationRunner {
@@ -20,6 +22,9 @@ public class ClientConfig implements ApplicationRunner {
 
         client.start(webSocketClient, getURI());
 
+        Mono.delay(Duration.ofSeconds(1))
+                .publishOn(Schedulers.boundedElastic())
+                .subscribe(it -> client.stop());
     }
 
     private URI getURI() {
