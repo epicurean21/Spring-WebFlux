@@ -1,4 +1,4 @@
-package com.example.webflux.ReactiveStudy5;
+package com.example.webflux.flux;
 
 import java.time.Duration;
 import java.util.Arrays;
