@@ -1,4 +1,4 @@
-package com.example.webflux.ReactiveStudy3;
+package com.example.webflux.ReactiveScheduler;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

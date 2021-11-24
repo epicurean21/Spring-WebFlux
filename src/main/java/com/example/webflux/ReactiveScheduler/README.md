@@ -54,13 +54,13 @@ Publisher<Integer> pub = sub -> {
 > 여기서는 제한없는 매우 큰 수로 정의하였다.
 
 ```java
-18:53:37.076 [main] DEBUG com.example.webflux.ReactiveStudy3.ReactiveScheduler - onSubscribe
-18:53:37.078 [main] DEBUG com.example.webflux.ReactiveStudy3.ReactiveScheduler - onNext: 1
-18:53:37.080 [main] DEBUG com.example.webflux.ReactiveStudy3.ReactiveScheduler - onNext: 2
-18:53:37.080 [main] DEBUG com.example.webflux.ReactiveStudy3.ReactiveScheduler - onNext: 3
-18:53:37.080 [main] DEBUG com.example.webflux.ReactiveStudy3.ReactiveScheduler - onNext: 4
-18:53:37.080 [main] DEBUG com.example.webflux.ReactiveStudy3.ReactiveScheduler - onNext: 5
-18:53:37.080 [main] DEBUG com.example.webflux.ReactiveStudy3.ReactiveScheduler - onComplete
+18:53:37.076 [main] DEBUG com.example.webflux.ReactiveScheduler.ReactiveScheduler - onSubscribe
+18:53:37.078 [main] DEBUG com.example.webflux.ReactiveScheduler.ReactiveScheduler - onNext: 1
+18:53:37.080 [main] DEBUG com.example.webflux.ReactiveScheduler.ReactiveScheduler - onNext: 2
+18:53:37.080 [main] DEBUG com.example.webflux.ReactiveScheduler.ReactiveScheduler - onNext: 3
+18:53:37.080 [main] DEBUG com.example.webflux.ReactiveScheduler.ReactiveScheduler - onNext: 4
+18:53:37.080 [main] DEBUG com.example.webflux.ReactiveScheduler.ReactiveScheduler - onNext: 5
+18:53:37.080 [main] DEBUG com.example.webflux.ReactiveScheduler.ReactiveScheduler - onComplete
 ```
 정상적으로 onSubscribe이 샐행 (request(Long.MAX_VALUE)) 후 onNext가 5번 찍히고 종료된더.
 
@@ -177,13 +177,13 @@ pubOnPub.subscribe(new Subscriber<Integer>() {
 
 결과:
 ```java
-19:42:21.878 [main] DEBUG com.example.webflux.ReactiveStudy3.ReactiveScheduler - onSubscribe
-19:42:21.881 [pool-1-thread-1] DEBUG com.example.webflux.ReactiveStudy3.ReactiveScheduler - onNext: 1
-19:42:21.883 [pool-1-thread-1] DEBUG com.example.webflux.ReactiveStudy3.ReactiveScheduler - onNext: 2
-19:42:21.883 [pool-1-thread-1] DEBUG com.example.webflux.ReactiveStudy3.ReactiveScheduler - onNext: 3
-19:42:21.883 [pool-1-thread-1] DEBUG com.example.webflux.ReactiveStudy3.ReactiveScheduler - onNext: 4
-19:42:21.883 [pool-1-thread-1] DEBUG com.example.webflux.ReactiveStudy3.ReactiveScheduler - onNext: 5
-19:42:21.883 [pool-1-thread-1] DEBUG com.example.webflux.ReactiveStudy3.ReactiveScheduler - onComplete
+19:42:21.878 [main] DEBUG com.example.webflux.ReactiveScheduler.ReactiveScheduler - onSubscribe
+19:42:21.881 [pool-1-thread-1] DEBUG com.example.webflux.ReactiveScheduler.ReactiveScheduler - onNext: 1
+19:42:21.883 [pool-1-thread-1] DEBUG com.example.webflux.ReactiveScheduler.ReactiveScheduler - onNext: 2
+19:42:21.883 [pool-1-thread-1] DEBUG com.example.webflux.ReactiveScheduler.ReactiveScheduler - onNext: 3
+19:42:21.883 [pool-1-thread-1] DEBUG com.example.webflux.ReactiveScheduler.ReactiveScheduler - onNext: 4
+19:42:21.883 [pool-1-thread-1] DEBUG com.example.webflux.ReactiveScheduler.ReactiveScheduler - onNext: 5
+19:42:21.883 [pool-1-thread-1] DEBUG com.example.webflux.ReactiveScheduler.ReactiveScheduler - onComplete
 ```
 main thread에서 빠르게 onSubscribe까지 하고, 별개의 Thread에서 생성된 Data를 처리한다.
 
@@ -286,14 +286,14 @@ pubOnPub.subscribe(new Subscriber<Integer>() {
 ```
 결과
 ```java
-20:04:07.136 [subOn-1] DEBUG com.example.webflux.ReactiveStudy3.ReactiveScheduler - onSubscribe
-20:04:07.140 [subOn-1] DEBUG com.example.webflux.ReactiveStudy3.ReactiveScheduler - request()
-20:04:07.140 [pubOn-1] DEBUG com.example.webflux.ReactiveStudy3.ReactiveScheduler - onNext: 1
-20:04:07.143 [pubOn-1] DEBUG com.example.webflux.ReactiveStudy3.ReactiveScheduler - onNext: 2
-20:04:07.143 [pubOn-1] DEBUG com.example.webflux.ReactiveStudy3.ReactiveScheduler - onNext: 3
-20:04:07.143 [pubOn-1] DEBUG com.example.webflux.ReactiveStudy3.ReactiveScheduler - onNext: 4
-20:04:07.143 [pubOn-1] DEBUG com.example.webflux.ReactiveStudy3.ReactiveScheduler - onNext: 5
-20:04:07.143 [pubOn-1] DEBUG com.example.webflux.ReactiveStudy3.ReactiveScheduler - onComplete
+20:04:07.136 [subOn-1] DEBUG com.example.webflux.ReactiveScheduler.ReactiveScheduler - onSubscribe
+20:04:07.140 [subOn-1] DEBUG com.example.webflux.ReactiveScheduler.ReactiveScheduler - request()
+20:04:07.140 [pubOn-1] DEBUG com.example.webflux.ReactiveScheduler.ReactiveScheduler - onNext: 1
+20:04:07.143 [pubOn-1] DEBUG com.example.webflux.ReactiveScheduler.ReactiveScheduler - onNext: 2
+20:04:07.143 [pubOn-1] DEBUG com.example.webflux.ReactiveScheduler.ReactiveScheduler - onNext: 3
+20:04:07.143 [pubOn-1] DEBUG com.example.webflux.ReactiveScheduler.ReactiveScheduler - onNext: 4
+20:04:07.143 [pubOn-1] DEBUG com.example.webflux.ReactiveScheduler.ReactiveScheduler - onNext: 5
+20:04:07.143 [pubOn-1] DEBUG com.example.webflux.ReactiveScheduler.ReactiveScheduler - onComplete
 ```
 onSubscribe & request 는 subOn에서 생성된 Thread에서 수행되고, 이후 Data를 실제로 
 전달하는 onNext 및 onError / onComplete은 pubOn에서 만들어진

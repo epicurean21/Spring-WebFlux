@@ -1,11 +1,10 @@
-package com.example.webflux.ReactiveStudy3;
+package com.example.webflux.ReactiveScheduler;
 
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
-import reactor.core.scheduler.Schedulers;
 
 /**
  * React library를 이용한 방법.
