@@ -1,4 +1,4 @@
-package com.example.webflux.ReactiveScheduler;
+package com.example.webflux.scheduler;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

@@ -1,4 +1,4 @@
-package com.example.webflux.ReactiveScheduler;
+package com.example.webflux.scheduler;
 
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
