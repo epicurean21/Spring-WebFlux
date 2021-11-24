@@ -1,6 +1,6 @@
-package com.example.webflux.ReactiveStudy4.controller;
+package com.example.webflux.Mono.controller;
 
-import com.example.webflux.ReactiveStudy4.service.MyService;
+import com.example.webflux.Mono.service.MyService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
