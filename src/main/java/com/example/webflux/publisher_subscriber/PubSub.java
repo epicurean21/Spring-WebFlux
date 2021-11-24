@@ -1,4 +1,4 @@
-package com.example.webflux.PublisherAndSubscriber;
+package com.example.webflux.publisher_subscriber;
 
 import java.util.Arrays;
 import java.util.Iterator;
