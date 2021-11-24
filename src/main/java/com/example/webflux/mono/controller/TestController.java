@@ -1,6 +1,6 @@
-package com.example.webflux.Mono.controller;
+package com.example.webflux.mono.controller;
 
-import com.example.webflux.Mono.service.MyService;
+import com.example.webflux.mono.service.MyService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
