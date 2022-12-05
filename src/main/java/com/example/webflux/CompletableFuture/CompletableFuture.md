@@ -72,4 +72,34 @@ ForkJoinPool.commonPool().shutdown();
 
 ```
 
+#### Async Methods
+- runAsync
+   - 반환값이 없는 경우
+   - 비동기로 작업 실행 콜
+- supplyAsync
+   - 반환값이 있는 경우
+   - 비동기로 작업 실행 콜
 
+
+#### Callback Methods
+- thenApply
+   - 반환 값을 받아서 다른 값을 반환함
+   - 함수형 인터페이스 Function을 파라미터로 받음
+- thenAccpet
+   - 반환 값을 받아 처리하고 값을 반환하지 않음
+   - 함수형 인터페이스 Consumer를 파라미터로 받음
+- thenRun
+   - 반환 값을 받지 않고 다른 작업을 실행함
+   - 함수형 인터페이스 Runnable을 파라미터로 받음
+
+#### 작업 조합
+- thenCompose
+   - 두 작업이 이어서 실행하도록 조합하며, 앞선 작업의 결과를 받아서 사용할 수 있음
+   - 함수형 인터페이스 Function을 파라미터로 받음
+- thenCombine
+  - 두 작업을 독립적으로 실행하고, 둘 다 완료되었을 때 콜백을 실행함
+  - 함수형 인터페이스 Function을 파라미터로 받음
+- allOf
+  - 여러 작업들을 동시에 실행하고, 모든 작업 결과에 콜백을 실행함
+- anyOf
+  - 여러 작업들 중에서 가장 빨리 끝난 하나의 결과에 콜백을 실행함
